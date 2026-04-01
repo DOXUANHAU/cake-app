@@ -1,9 +1,17 @@
-export function PublicFooter() {
+'use client';
+
+import {  Layout } from 'antd';
+
+const {   Footer} = Layout;
+
+export  function PublicFooter() {
+  const footerStyle: React.CSSProperties = {
+  textAlign: 'center',
+  color: '#fff',
+  backgroundColor: '#4096ff',
+};
   return (
-    <footer className="w-full border-t border-black/10 px-6 py-4">
-      <div className="mx-auto w-full max-w-6xl text-sm opacity-80">
-        Cake App
-      </div>
-    </footer>
+      <Footer style={footerStyle}>Footer</Footer>
+  
   );
 }
