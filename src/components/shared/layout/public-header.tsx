@@ -1,37 +1,86 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Layout } from "antd";
+import {
+  AUTH_CONFIG,
+  HEADER_BRAND,
+  HEADER_NAV_ITEMS,
+  HeaderNavItem,
+  UI_CONFIG,
+} from "@/config";
 
-const AUTH_PATHS = ["/login", "/register"] as const;
+const { Header } = Layout;
 
-const NAV_LINKS = [
-  { href: "/home", label: "Home" },
-  { href: "/login", label: "Login" },
-  { href: "/register", label: "Register" },
-] as const;
+type PublicHeaderProps = {
+  children?: ReactNode;
+  navItems?: HeaderNavItem[];
+  brand?: {
+    href: string;
+    label: string;
+  };
+};
 
-export function PublicHeader() {
+function canShow(item: HeaderNavItem, hasToken: boolean) {
+  if (!item.audience || item.audience === "all") return true;
+  if (item.audience === "guest") return !hasToken;
+  return hasToken;
+}
+
+export function PublicHeader({
+  children,
+  navItems = HEADER_NAV_ITEMS,
+  brand = HEADER_BRAND,
+}: PublicHeaderProps) {
   const pathname = usePathname();
 
-  const hideAuthLinks = AUTH_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
+  /**
+   * need to check token existence on client side to determine which nav items to show
+   */
+  const hasToken =
+    typeof document !== "undefined" &&
+    document.cookie.includes(`${AUTH_CONFIG.tokenCookieName}=`);
 
-  const visibleLinks = NAV_LINKS.filter((link) => {
-    if (!hideAuthLinks) return true;
-    return !AUTH_PATHS.includes(link.href as (typeof AUTH_PATHS)[number]);
-  });
+  const visibleItems = navItems.filter((item) => canShow(item, hasToken));
+
+  const headerStyle: React.CSSProperties = {
+    color: "#fff",
+    height: UI_CONFIG.layout.headerHeight,
+    paddingInline: 48,
+    backgroundColor: "#4096ff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 16,
+  };
 
   return (
-    <header className="w-full border-b border-black/10 px-6 py-4">
-      <nav className="mx-auto flex w-full max-w-6xl justify-end gap-4">
-        {visibleLinks.map((link) => (
-          <Link key={link.href} href={link.href} className="hover:underline">
-            {link.label}
-          </Link>
-        ))}
+    <Header style={headerStyle}>
+      <Link href={brand.href} style={{ color: "#fff", fontWeight: 700 }}>
+        {brand.label}
+      </Link>
+
+      <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        {visibleItems.map((item) => {
+          const isActive = pathname === item.href;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{ color: "#fff", opacity: isActive ? 1 : 0.8 }}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
-    </header>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {children}
+      </div>
+    </Header>
   );
 }
