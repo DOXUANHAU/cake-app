@@ -1,18 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
 
-  /** config cross-origin problems */
+  // Apply CORS only to API routes
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: "/api/:path*",
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "*",
+            value: "http://localhost:3000",
           },
           {
             key: "Access-Control-Allow-Methods",
@@ -23,17 +22,17 @@ const nextConfig: NextConfig = {
             value:
               "X-Requested-With, Content-Type, Authorization, Accept, Origin",
           },
+          {
+            key: "Vary",
+            value: "Origin",
+          },
         ],
       },
     ];
-  }
+  },
 
+  // Use hostnames only here (no protocol)
+  allowedDevOrigins: ["localhost", "127.0.0.1"],
 };
-
-module.exports = {
-  allowedDevOrigins: ['localhost:3000', 'http://localhost:3000'],
-}
-
-
 
 export default nextConfig;
