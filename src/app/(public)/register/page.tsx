@@ -1,56 +1,24 @@
 "use client";
-import { Button, Card, Col, Form, Input, Row, Typography } from "antd";
-import { useState } from "react";
+import { Button, Card, Col, Form, Row, Typography, Input } from "antd";
 import Link from "next/link";
-import { validateRegister } from "@/utils/validator";
-import { RegisterErrors } from "@/types/error.types";
+import { useRegister } from "@/hook/auth/useRegister";
 
 const { Title, Text } = Typography;
-
 export default function RegisterPage() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const {
+    register,
+    loading,
+    errors,
+    form,
+    touched,
+    handleChange,
+    handleBlur,
+  } = useRegister();
 
-  const [errors, setErrors] = useState<RegisterErrors>({});
-  const [touched, setTouched] = useState({
-    name: false,
-    email: false,
-    password: false,
-    confirmPassword: false,
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    const newForm = { ...form, [name]: value };
-    setForm(newForm);
-
-    // 🔥 real-time validation
-    setErrors(validateRegister(newForm));
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setTouched({ ...touched, [name]: true });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const validationErrors = validateRegister(form);
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) return;
-
-    console.log("Register success:", form);
-    // TODO: call API register
+    await register();
   };
-
-  const isInvalid = Object.keys(errors).length > 0;
 
   return (
     <Row justify="center" align="middle" style={{ width: "100%", padding: 16 }}>
@@ -61,8 +29,9 @@ export default function RegisterPage() {
           </Title>
 
           <Form layout="vertical" onSubmitCapture={handleSubmit}>
+            {/* add input fields here */}
             <Form.Item
-              label="Full name"
+              label="Username"
               validateStatus={errors.name && touched.name ? "error" : ""}
               help={touched.name ? errors.name : undefined}
             >
@@ -74,7 +43,6 @@ export default function RegisterPage() {
                 onBlur={handleBlur}
               />
             </Form.Item>
-
             <Form.Item
               label="Email"
               validateStatus={errors.email && touched.email ? "error" : ""}
@@ -89,7 +57,6 @@ export default function RegisterPage() {
                 onBlur={handleBlur}
               />
             </Form.Item>
-
             <Form.Item
               label="Password"
               validateStatus={
@@ -99,15 +66,14 @@ export default function RegisterPage() {
             >
               <Input.Password
                 name="password"
-                placeholder="Enter password"
+                placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
             </Form.Item>
-
             <Form.Item
-              label="Confirm password"
+              label="Confirm Password"
               validateStatus={
                 errors.confirmPassword && touched.confirmPassword ? "error" : ""
               }
@@ -117,14 +83,19 @@ export default function RegisterPage() {
             >
               <Input.Password
                 name="confirmPassword"
-                placeholder="Confirm password"
+                placeholder="Confirm your password"
                 value={form.confirmPassword}
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
             </Form.Item>
-
-            <Button type="primary" htmlType="submit" block disabled={isInvalid}>
+            {/* use loading to show registration status button */}
+            {loading && (
+              <Button type="primary" htmlType="submit" block disabled>
+                Registering...
+              </Button>
+            )}
+            <Button type="primary" htmlType="submit" block disabled={loading}>
               Sign Up
             </Button>
           </Form>

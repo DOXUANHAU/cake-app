@@ -2,6 +2,7 @@
 import type { ReactNode } from "react";
 import { PublicFooter, PublicHeader } from "@/components/shared/layout";
 import { Layout, Flex } from "antd";
+import { Toaster } from "sileo";
 
 type PublicLayoutProps = {
   children: ReactNode;
@@ -43,6 +44,8 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
       gap="medium"
       wrap
     >
+      <Toaster position="top-center" />
+
       <Layout style={layoutStyle}>
         <PublicHeader />
         <Content style={contentStyle}>{children}</Content>
