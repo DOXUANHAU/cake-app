@@ -56,8 +56,3 @@ export function validateRegister(data: RegisterPayload): RegisterErrors {
     newErrors.confirmPassword = "Passwords do not match";
   return newErrors;
 }
-
-export function validateName(name: string): string | null {
-  if (name.trim().length < 2) return "Tên phải có ít nhất 2 ký tự";
-  return null;
-}

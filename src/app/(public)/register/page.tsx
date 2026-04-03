@@ -1,92 +1,27 @@
 "use client";
-import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Form,
-  Row,
-  Typography,
-  Input,
-} from "antd";
-import { useState } from "react";
+import { Button, Card, Col, Form, Row, Typography, Input } from "antd";
 import Link from "next/link";
-import { validateRegister } from "@/utils/validator";
-import { RegisterErrors } from "@/types/error.types";
-// import { InputField } from "@/components/ui/InputField";
-import { sileo, Toaster } from "sileo";
+import { useRegister } from "@/hook/auth/useRegister";
+
 const { Title, Text } = Typography;
-type FieldType = {
-  username?: string;
-  password?: string;
-  confirmPassword?: string;
-};
 export default function RegisterPage() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const [errors, setErrors] = useState<RegisterErrors>({});
-  const [touched, setTouched] = useState({
-    name: false,
-    email: false,
-    password: false,
-    confirmPassword: false,
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const newForm = { ...form, [name]: value };
-    setForm(newForm);
-    // 🔥 real-time validation
-    setErrors(validateRegister(newForm));
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setTouched({ ...touched, [name]: true });
-  };
+  const {
+    register,
+    loading,
+    errors,
+    form,
+    touched,
+    handleChange,
+    handleBlur,
+  } = useRegister();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const validationErrors = validateRegister(form);
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length > 0) return;
-
-    // TODO: call API registers
-    // try {
-    //   const response = await fetch("/api/auth/register", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(form),
-    //   });
-
-    //   if (!response.ok) {
-    //     const data = await response.json();
-    //     setErrors(data.errors || { general: data.message });
-    //   } else {
-    //     // Registration successful, redirect to login or home page
-    //     sileo.success({ title: "Registration saved" });
-    //     window.location.href = "/login";
-    //   }
-    // } catch (error) {
-    //   sileo.error({
-    //     title: "Error",
-    //     description: "An unexpected error occurred. Please try again.",
-    //   });
-    // }
+    await register();
   };
-
-  const isInvalid = Object.keys(errors).length > 0;
 
   return (
     <Row justify="center" align="middle" style={{ width: "100%", padding: 16 }}>
-      <Toaster position="top-right" />
       <Col xs={24} sm={20} md={14} lg={10} xl={8}>
         <Card>
           <Title level={3} style={{ textAlign: "center", marginBottom: 24 }}>
@@ -95,15 +30,10 @@ export default function RegisterPage() {
 
           <Form layout="vertical" onSubmitCapture={handleSubmit}>
             {/* add input fields here */}
-            <Form.Item<FieldType>
+            <Form.Item
               label="Username"
-              name="username"
-              rules={[
-                {
-                  required: true,
-                  message: errors.name || "Please input your username!",
-                },
-              ]}
+              validateStatus={errors.name && touched.name ? "error" : ""}
+              help={touched.name ? errors.name : undefined}
             >
               <Input
                 name="name"
@@ -127,16 +57,12 @@ export default function RegisterPage() {
                 onBlur={handleBlur}
               />
             </Form.Item>
-
-            <Form.Item<FieldType>
+            <Form.Item
               label="Password"
-              name="password"
-              rules={[
-                {
-                  required: true,
-                  message: errors.password || "Please input your password!",
-                },
-              ]}
+              validateStatus={
+                errors.password && touched.password ? "error" : ""
+              }
+              help={touched.password ? errors.password : undefined}
             >
               <Input.Password
                 name="password"
@@ -146,16 +72,14 @@ export default function RegisterPage() {
                 onBlur={handleBlur}
               />
             </Form.Item>
-            <Form.Item<FieldType>
+            <Form.Item
               label="Confirm Password"
-              name="confirmPassword"
-              rules={[
-                {
-                  required: true,
-                  message:
-                    errors.confirmPassword || "Please confirm your password!",
-                },
-              ]}
+              validateStatus={
+                errors.confirmPassword && touched.confirmPassword ? "error" : ""
+              }
+              help={
+                touched.confirmPassword ? errors.confirmPassword : undefined
+              }
             >
               <Input.Password
                 name="confirmPassword"
@@ -165,8 +89,13 @@ export default function RegisterPage() {
                 onBlur={handleBlur}
               />
             </Form.Item>
-
-            <Button type="primary" htmlType="submit" block disabled={isInvalid}>
+            {/* use loading to show registration status button */}
+            {loading && (
+              <Button type="primary" htmlType="submit" block disabled>
+                Registering...
+              </Button>
+            )}
+            <Button type="primary" htmlType="submit" block disabled={loading}>
               Sign Up
             </Button>
           </Form>

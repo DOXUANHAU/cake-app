@@ -1,87 +1,34 @@
 "use server";
 
-import { NextResponse } from "next/server";
-
-import { AUTH_CONFIG } from "@/config";
-import { StoredUser, users } from "@/data/uesrs";
-import { RegisterPayload } from "@/types";
+import { NextRequest, NextResponse } from "next/server";
 import { validateRegister } from "@/utils/validator";
-import { UserModel } from "@/types/models/userModel";
+import { authRegister } from "@/services/authServices";
+import { log } from "console";
+import { registerSchema } from "@/schemas/auth/authSchema";
 
-export async function POST(request: Request) {
-  let body: RegisterPayload;
-
+export async function POST(request: NextRequest) {
   try {
-    body = (await request.json()) as RegisterPayload;
-  } catch {
+    // Parse the request body
+    const body = await request.json();
+
+    // Validate input using  zod
+    const parsed = registerSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { message: "Invalid input data", errors: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+
+    const user = await authRegister.register(body);
     return NextResponse.json(
-      { message: "Invalid request body" },
+      { message: "User registered successfully", user },
+      { status: 201 },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: (error as Error).message },
       { status: 400 },
     );
   }
-
-  const payload: RegisterPayload = {
-    name: body.name?.trim() ?? "",
-    email: body.email?.trim().toLowerCase() ?? "",
-    password: body.password ?? "",
-    confirmPassword: body.confirmPassword ?? "",
-  };
-
-  const validationErrors = validateRegister(payload);
-  if (Object.keys(validationErrors).length > 0) {
-    return NextResponse.json(
-      {
-        message: "Validation failed",
-        errors: validationErrors,
-      },
-      { status: 400 },
-    );
-  }
-
-  const userExists = users.some((user) => user.email === payload.email);
-  if (userExists) {
-    return NextResponse.json(
-      {
-        message: "Email already exists",
-      },
-      { status: 409 },
-    );
-  }
-
-  const now = new Date().toISOString();
-  const newUser: StoredUser = {
-    id: crypto.randomUUID(),
-    name: payload.name,
-    email: payload.email,
-    password: payload.password,
-    role: "user" as const,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  users.push(newUser);
-
-  const token = crypto.randomUUID();
-  const response = NextResponse.json(
-    {
-      message: "Register successfully",
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        createdAt: newUser.createdAt,
-      },
-      token,
-    },
-    { status: 201 },
-  );
-
-  //   response.cookies.set(AUTH_CONFIG.tokenCookieName, token, {
-  //     httpOnly: true,
-  //     sameSite: "lax",
-  //     path: "/",
-  //   });
-
-  return response;
 }
