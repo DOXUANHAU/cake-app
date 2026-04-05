@@ -15,10 +15,10 @@ export default function RegisterPage() {
     handleBlur,
   } = useRegister();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await register();
-  };
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   await register();
+  // };
 
   return (
     <Row justify="center" align="middle" style={{ width: "100%", padding: 16 }}>
@@ -28,7 +28,7 @@ export default function RegisterPage() {
             Register
           </Title>
 
-          <Form layout="vertical" onSubmitCapture={handleSubmit}>
+          <Form layout="vertical" onSubmitCapture={register}>
             {/* add input fields here */}
             <Form.Item
               label="Username"

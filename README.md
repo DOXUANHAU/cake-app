@@ -34,3 +34,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+🧠 Commit Message Rules
+✅ Good format:
+<type>: <short description>
+📌 Common types:
+feat: add new feature
+fix: fix bug
+refactor: improve code (no new feature, no bug fix)
+style: format code (spacing, semicolons, etc.)
+docs: update documentation
+test: add or update tests
+💡 Examples:
+git commit -m "feat: add login API"
+git commit -m "fix: handle null user data"
+git commit -m "refactor: clean auth logic"
+git commit -m "style: format code with Prettier"

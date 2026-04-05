@@ -1,13 +1,4 @@
-export interface StoredUser {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: "user" | "admin";
-  createdAt: string;
-  updatedAt: string;
-}
-
+import { StoredUser } from "@/types/models/userModel";
 export const users: StoredUser[] = [
   {
     id: "1",

@@ -12,20 +12,22 @@ export function validate(data: LoginPayload): LoginErrors {
 
   // setup bypass if email is not required
   if (config.required && !data.email) {
-    return { email: "Email is required" };
+    newErrors.email = "Email is required";
   }
 
   if (config.regex && data.email && !config.regex.test(data.email)) {
-    return { email: "Invalid email format" };
+    newErrors.email = "Invalid email format";
   }
-
-  if (!data.password) return { password: "Password is required" };
+  if (!data.password) {
+    newErrors.password = "Password is required";
+    return newErrors;
+  }
   if (data.password.length < 8)
-    return { password: "Password must be at least 8 characters" };
+    newErrors.password = "Password must be at least 8 characters";
   if (!/[A-Z]/.test(data.password))
-    return { password: "Password must contain at least one uppercase letter" };
+    newErrors.password = "Password must contain at least one uppercase letter";
   if (!/[0-9]/.test(data.password))
-    return { password: "Password must contain at least one number" };
+    newErrors.password = "Password must contain at least one number";
   return newErrors;
 }
 
