@@ -4,14 +4,16 @@ import { useState } from "react";
 import { validate } from "@/utils/validator";
 import { LoginErrors } from "@/types/error.types";
 import { LoginPayload } from "@/types";
-import logger from "@/lib/logger";
+import { authClientService } from "@/lib/service/authClientService";
+import { sileo } from "sileo";
+import { useRouter } from "next/navigation";
 
 type TouchedFields = {
   email: boolean;
   password: boolean;
 };
 export const useSignIn = () => {
-  //   const router = useRouter();
+  const router = useRouter();
 
   // state for form data, errors, touched fields, and loading status
   const [loading, setLoading] = useState(false);
@@ -44,7 +46,7 @@ export const useSignIn = () => {
     setErrors(validate(form));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     setTouched((prev) => ({
       email: true,
       password: true,
@@ -58,15 +60,25 @@ export const useSignIn = () => {
     try {
       setLoading(true);
       // call login API here with form data
+      await authClientService.login(form);
       // await authClientService.login(form);
-      logger.info("Login successful");
-      logger.info("Form is valid, submitting..." + JSON.stringify({ ...form }));
-      // redirect to dashboard or home page
-      // router.push("/dashboard");
+      sileo.success({
+        title: "Login successful!",
+        description: "You can now access your account.",
+      });
+
+      router.push("/home");
     } catch (error) {
-      logger.error("Login failed: " + error);
       // handle login error (e.g., show error message)
+      sileo.error({
+        title: "Login failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred during login",
+      });
     } finally {
+      // set 5 second timeout to reset loading state
       setLoading(false);
     }
   };

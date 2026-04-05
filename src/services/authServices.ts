@@ -1,5 +1,7 @@
+import { StoredUser } from "@/types/models/userModel";
 import { RegisterUserDto } from "../dto/register/users";
-import { StoredUser, users } from "@/data/uesrs";
+import { users } from "@/data/uesrs";
+import { LoginPayload } from "@/types";
 
 export const authRegister = {
   register: async (data: RegisterUserDto) => {
@@ -25,5 +27,18 @@ export const authRegister = {
     users.push(newUser);
 
     return newUser;
+  },
+};
+
+export const authLogin = {
+  login: async (data: LoginPayload) => {
+    // logic to login user
+    const user = users.find(
+      (user) => user.email === data.email && user.password === data.password,
+    );
+    if (!user) {
+      throw new Error("User not found or incorrect password");
+    }
+    return user;
   },
 };

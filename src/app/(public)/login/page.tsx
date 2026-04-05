@@ -60,14 +60,20 @@ export default function LoginPage() {
               </Form.Item>
 
               {/* use loading to show registration status button */}
-              {loading && (
+              {loading ? (
                 <Button type="primary" htmlType="submit" block disabled>
                   Logging in...
                 </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  disabled={loading}
+                >
+                  Login
+                </Button>
               )}
-              <Button type="primary" htmlType="submit" block disabled={loading}>
-                Login
-              </Button>
             </Form>
 
             <Text

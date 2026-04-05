@@ -1,10 +1,9 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import { validateRegister } from "@/utils/validator";
 import { authRegister } from "@/services/authServices";
-import { log } from "console";
 import { registerSchema } from "@/schemas/auth/authSchema";
+import logger from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,6 +25,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
+    logger.error("Registration error:" + (error as Error).message);
     return NextResponse.json(
       { message: (error as Error).message },
       { status: 400 },

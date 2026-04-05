@@ -1,6 +1,5 @@
 // lib/apiClient.ts
-import { RegisterUserDto } from "@/dto/register/users";
-import axios from "axios";
+import axios, { AxiosRequestConfig, Method } from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 
@@ -11,34 +10,83 @@ function resolveUrl(url: string): string {
   return BASE_URL ? `${BASE_URL}${normalizedPath}` : normalizedPath;
 }
 
-async function request<T>(url: string, options?: RequestInit): Promise<T> {
-  const method = options?.method || "GET";
-  const body = options?.body;
+type RequestOptions<TBody = unknown> = {
+  method?: Method;
+  data?: TBody;
+  params?: AxiosRequestConfig["params"];
+  headers?: AxiosRequestConfig["headers"];
+  withCredentials?: boolean;
+  signal?: AbortSignal;
+  timeout?: number;
+};
+
+type RequestConfigOptions<TBody = unknown> = Omit<
+  RequestOptions<TBody>,
+  "method" | "data"
+>;
+
+async function request<TResponse, TBody = unknown>(
+  url: string,
+  options: RequestOptions<TBody> = {},
+): Promise<TResponse> {
+  const {
+    method = "GET",
+    data,
+    params,
+    headers,
+    withCredentials = true,
+    signal,
+    timeout,
+  } = options;
 
   try {
-    const response = await axios({
+    const response = await axios<TResponse>({
       url: resolveUrl(url),
       method,
+      params,
+      withCredentials,
+      signal,
+      timeout,
       headers: {
         "Content-Type": "application/json",
+        ...headers,
       },
-      data: body ? JSON.parse(body as string) : undefined,
+      data,
     });
+
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(
-        error.response?.data?.message || "API request failed with Axios",
-      );
+      const responseData = error.response?.data;
+      const errorMessage =
+        typeof responseData === "string"
+          ? responseData
+          : responseData?.message || error.message;
+      throw new Error(errorMessage || "API request failed with Axios");
     }
     throw new Error("An unknown error occurred during API request");
   }
 }
+
 export const apiClient = {
-  get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: RegisterUserDto | Record<string, unknown>) =>
-    request<T>(url, { method: "POST", body: JSON.stringify(data) }),
-  put: <T>(url: string, data: RegisterUserDto | Record<string, unknown>) =>
-    request<T>(url, { method: "PUT", body: JSON.stringify(data) }),
-  delete: <T>(url: string) => request<T>(url, { method: "DELETE" }),
+  request,
+  get: <TResponse>(url: string, options?: RequestConfigOptions) =>
+    request<TResponse>(url, { method: "GET", ...options }),
+  post: <TResponse, TBody = unknown>(
+    url: string,
+    data?: TBody,
+    options?: RequestConfigOptions<TBody>,
+  ) => request<TResponse, TBody>(url, { method: "POST", data, ...options }),
+  put: <TResponse, TBody = unknown>(
+    url: string,
+    data?: TBody,
+    options?: RequestConfigOptions<TBody>,
+  ) => request<TResponse, TBody>(url, { method: "PUT", data, ...options }),
+  patch: <TResponse, TBody = unknown>(
+    url: string,
+    data?: TBody,
+    options?: RequestConfigOptions<TBody>,
+  ) => request<TResponse, TBody>(url, { method: "PATCH", data, ...options }),
+  delete: <TResponse>(url: string, options?: RequestConfigOptions) =>
+    request<TResponse>(url, { method: "DELETE", ...options }),
 };
