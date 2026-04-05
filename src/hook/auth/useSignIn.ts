@@ -7,6 +7,7 @@ import { LoginPayload } from "@/types";
 import { authClientService } from "@/lib/service/authClientService";
 import { sileo } from "sileo";
 import { useRouter } from "next/navigation";
+import logger from "@/lib/logger";
 
 type TouchedFields = {
   email: boolean;
@@ -60,12 +61,16 @@ export const useSignIn = () => {
     try {
       setLoading(true);
       // call login API here with form data
-      await authClientService.login(form);
+      const response = await authClientService.login(form);
       // await authClientService.login(form);
       sileo.success({
         title: "Login successful!",
         description: "You can now access your account.",
       });
+      const data = JSON.stringify(response);
+      // store token in cookie
+
+      logger.info("User logged in successfully" + data);
 
       router.push("/home");
     } catch (error) {

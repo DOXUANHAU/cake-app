@@ -22,7 +22,7 @@ export const users: StoredUser[] = [
     id: "3",
     name: "Admin User",
     email: "admin@example.com",
-    password: "admin123",
+    password: "Admin123",
     role: "admin",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
