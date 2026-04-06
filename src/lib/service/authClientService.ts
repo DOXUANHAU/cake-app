@@ -6,4 +6,5 @@ export const authClientService = {
   register: (data: RegisterUserDto) =>
     apiClient.post("/api/auth/register", data),
   login: (data: LoginPayload) => apiClient.post("/api/auth/login", data),
+  logout: () => apiClient.post("/api/auth/logout"),
 };
