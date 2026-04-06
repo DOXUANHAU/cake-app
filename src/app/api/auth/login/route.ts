@@ -1,9 +1,10 @@
 "use server";
 
-import { AUTH_CONFIG } from "@/config/auth.config";
+import { AUTH_CONFIG } from "@/config";
 import { signAuthToken } from "@/lib/jwt";
 import { loginSchema } from "@/schemas/auth/authSchema";
 import { authLogin } from "@/services/authServices";
+import { AuthTokenPayload } from "@/types/auth.types";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -23,34 +24,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await authLogin.login(body);
+    const user = await authLogin.login(parsed.data);
 
-    const token = signAuthToken({
+    const payload: AuthTokenPayload = {
       userId: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
-    });
+    };
+    const token = await signAuthToken(payload);
 
-    const response = NextResponse.json(
-      {
-        message: "User logged in successfully",
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      },
-      { status: 200 },
-    );
-
+    const response = NextResponse.json({ success: true });
+    //  set the token in an HTTP-only cookie
     response.cookies.set(AUTH_CONFIG.tokenCookieName, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      maxAge: 10 * 60, // 10 minutes in seconds
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;

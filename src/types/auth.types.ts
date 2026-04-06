@@ -1,3 +1,5 @@
+import { StoredUser } from "./models/userModel";
+
 export interface User {
   id: string;
   name: string;
@@ -8,13 +10,6 @@ export interface LoginPayload {
   email: string;
   password: string;
 }
-
-export type RegisterPayload = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
 
 export interface AuthResponse {
   user: User;
@@ -27,3 +22,9 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
 }
+export type AuthTokenPayload = {
+  userId: string;
+  email: string;
+  name: string;
+  role: StoredUser["role"];
+};

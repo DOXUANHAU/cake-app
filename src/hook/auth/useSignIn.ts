@@ -72,6 +72,18 @@ export const useSignIn = () => {
 
       logger.info("User logged in successfully" + data);
 
+      // if (data) {
+      //   router.push("/data");
+      // } else {
+      //   const errorData = await .json();
+      //   logger.error("Login failed: " + JSON.stringify(errorData));
+      //   sileo.error({
+      //     title: "Login failed",
+      //     description: errorData.message || "An error occurred during login",
+      //   });
+      // return;
+      // }
+
       router.push("/home");
     } catch (error) {
       // handle login error (e.g., show error message)
