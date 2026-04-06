@@ -39,11 +39,11 @@ export function PublicHeader({
   /**
    * need to check token existence on client side to determine which nav items to show
    */
-  const hasToken =
-    typeof document !== "undefined" &&
-    document.cookie.includes(`${AUTH_CONFIG.tokenCookieName}=`);
+  // const hasToken =
+  //   typeof document !== "undefined" &&
+  //   document.cookie.includes(`${AUTH_CONFIG.tokenCookieName}=`);
 
-  const visibleItems = navItems.filter((item) => canShow(item, hasToken));
+  // const visibleItems = navItems.filter((item) => canShow(item, hasToken));
 
   const headerStyle: React.CSSProperties = {
     color: "#fff",
@@ -63,7 +63,7 @@ export function PublicHeader({
       </Link>
 
       <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        {visibleItems.map((item) => {
+        {navItems.map((item) => {
           const isActive = pathname === item.href;
 
           return (

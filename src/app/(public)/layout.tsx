@@ -44,7 +44,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
       gap="medium"
       wrap
     >
-      <Toaster position="top-center" />
+
+      
+      <Toaster position="top-right" />
 
       <Layout style={layoutStyle}>
         <PublicHeader />

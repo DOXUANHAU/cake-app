@@ -78,8 +78,6 @@ export const useRegister = () => {
     }
   };
 
-  const isInvalid = Object.keys(errors).length > 0;
-
   return {
     register,
     loading,
@@ -88,6 +86,5 @@ export const useRegister = () => {
     touched,
     handleChange,
     handleBlur,
-    isInvalid,
   };
 };
